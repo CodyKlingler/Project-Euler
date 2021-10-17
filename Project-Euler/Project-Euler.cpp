@@ -3,6 +3,6 @@
 
 
 int main() {
-    std::cout << "test";
-    pe7();
+    //printgrid();
+    cout << pe11() << endl;
 }

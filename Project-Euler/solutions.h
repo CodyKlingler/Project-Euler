@@ -29,12 +29,12 @@ long long pe3();
 //TODO: logic for navigating multiplication table needs fixed (only works by printing answers.)
 //O(n**2) - starts with large values.
 //maybe could be optimized with weird number theory
-void pe4();
+long pe4();
 
 
 //find smallest number that is divisible by all numbers less than 20
 //O(n) (actually O(primes less than n))
-long long pe5();
+uint64_t pe5();
 
 //difference of sum of squares and square of sum
 //I suspect there is a more efficient solution using binomial theorem.
@@ -43,3 +43,15 @@ long pe6();
 
 
 long pe7();
+
+uint64_t pe8();
+
+uint64_t pe8e();
+
+uint64_t pe9();
+
+uint64_t pe10();
+
+uint64_t pe11();
+
+void printgrid();
