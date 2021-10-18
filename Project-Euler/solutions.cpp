@@ -2,6 +2,7 @@
 #include <iostream>
 #include <queue>
 #include <stack>
+#include "myMath.h"
 
 //TODO: convert long long, long, and int to uint64,32,16 etc.
 
@@ -12,7 +13,7 @@ using namespace std;
 int SumToN(int n) {
     return (n * (n + 1)) / 2;
 }
-int SumNToK(int n, int k) {
+int SumMultiplesOfNtoK(int n, int k) {
     return n * SumToN(k / n);
 }
 
@@ -21,7 +22,7 @@ int SumNToK(int n, int k) {
 //Obvious Solution: O(n)
 //My Solution: O(1)
 int pe1() {
-    return SumNToK(3, 999) + SumNToK(5, 999) - SumNToK(15, 999);
+    return SumMultiplesOfNtoK(3, 999) + SumMultiplesOfNtoK(5, 999) - SumMultiplesOfNtoK(15, 999);
 }
 
 //finds sum of even numbers in the fibonacci sequence up to  4 million
@@ -86,7 +87,6 @@ bool isPalindrome(long n) {
     return true;
 }
 
-//would be a teeny bit faster if I changed the logic to not use a stack.
 //maybe could be optimized with weird number theory
 //O(n**2) - starts with largest values on multiplication table (from perfect squares to the edges)
 long pe4() {
@@ -256,7 +256,7 @@ uint64_t pe9() {
     return -1;
 }
 
-//using my siv from problem 7,
+//using my sieve from problem 7,
 uint64_t pe10() {
     const uint64_t n = 2000000;
     bool* p = new bool[n] {0};
@@ -289,85 +289,159 @@ uint64_t pe10() {
 }
 
 
-void printgrid() {
-    int c = 0;
-    cout << "{\n";
-    for (int i = 0; i < 10; i++) {
-        cout << "{";
-        for (int j = 0; j < 9; j++) {
-            cout << c++ << ", ";
+uint64_t pe11() {
+    const int h = 20;
+    const int w = 20;
+    const int windowLen = 4;
+uint8_t arr[h][w] = {
+    {8, 2, 22, 97, 38, 15, 0, 40, 0, 75, 4, 5, 7, 78, 52, 12, 50, 77, 91, 8},
+    {49, 49, 99, 40, 17, 81, 18, 57, 60, 87, 17, 40, 98, 43, 69, 48, 4, 56, 62, 0},
+    {81, 49, 31, 73, 55, 79, 14, 29, 93, 71, 40, 67, 53, 88, 30, 3, 49, 13, 36, 65},
+    {52, 70, 95, 23, 4, 60, 11, 42, 69, 24, 68, 56, 1, 32, 56, 71, 37, 2, 36, 91},
+    {22, 31, 16, 71, 51, 67, 63, 89, 41, 92, 36, 54, 22, 40, 40, 28, 66, 33, 13, 80},
+    {24, 47, 32, 60, 99, 3, 45, 2, 44, 75, 33, 53, 78, 36, 84, 20, 35, 17, 12, 50},
+    {32, 98, 81, 28, 64, 23, 67, 10, 26, 38, 40, 67, 59, 54, 70, 66, 18, 38, 64, 70},
+    {67, 26, 20, 68, 2, 62, 12, 20, 95, 63, 94, 39, 63, 8, 40, 91, 66, 49, 94, 21},
+    {24, 55, 58, 5, 66, 73, 99, 26, 97, 17, 78, 78, 96, 83, 14, 88, 34, 89, 63, 72},
+    {21, 36, 23, 9, 75, 0, 76, 44, 20, 45, 35, 14, 0, 61, 33, 97, 34, 31, 33, 95},
+    {78, 17, 53, 28, 22, 75, 31, 67, 15, 94, 3, 80, 4, 62, 16, 14, 9, 53, 56, 92},
+    {16, 39, 5, 42, 96, 35, 31, 47, 55, 58, 88, 24, 0, 17, 54, 24, 36, 29, 85, 57},
+    {86, 56, 0, 48, 35, 71, 89, 7, 5, 44, 44, 37, 44, 60, 21, 58, 51, 54, 17, 58},
+    {19, 80, 81, 68, 5, 94, 47, 69, 28, 73, 92, 13, 86, 52, 17, 77, 4, 89, 55, 40},
+    {4, 52, 8, 83, 97, 35, 99, 16, 7, 97, 57, 32, 16, 26, 26, 79, 33, 27, 98, 66},
+    {88, 36, 68, 87, 57, 62, 20, 72, 3, 46, 33, 67, 46, 55, 12, 32, 63, 93, 53, 69},
+    {4, 42, 16, 73, 38, 25, 39, 11, 24, 94, 72, 18, 8, 46, 29, 32, 40, 62, 76, 36},
+    {20, 69, 36, 41, 72, 30, 23, 88, 34, 62, 99, 69, 82, 67, 59, 85, 74, 4, 36, 16},
+    {20, 73, 35, 29, 78, 31, 90, 1, 74, 31, 49, 71, 48, 86, 81, 16, 23, 57, 5, 54},
+    {1, 70, 54, 71, 83, 51, 54, 69, 16, 92, 33, 48, 61, 43, 52, 1, 89, 19, 67, 48}
+};
+
+uint64_t max = 0;
+uint64_t currentProduct = 1;
+
+//up-down
+for (int i = 0; i < w; i++) {
+    for (int j = 0; j <= h - windowLen; j++) {
+        uint64_t currentProduct = 1;
+        for (int k = 0; k < windowLen; k++) {
+            currentProduct *= arr[j + k][i];
         }
-        cout << c++ << "},\n";
+        if (currentProduct > max)
+            max = currentProduct;
     }
-    cout << "\n};";
 }
 
-
-uint64_t pe11() {
-    const int h = 10;
-    const int w = 10;
-    const int windowLen = 4;
-    uint8_t arr[h][w] = {
-{0, 1, 2, 3, 4, 5, 6, 7, 8, 9},
-{10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
-{20, 21, 22, 23, 24, 25, 26, 27, 28, 29},
-{30, 31, 32, 33, 34, 35, 36, 37, 38, 39},
-{40, 41, 42, 43, 44, 45, 46, 47, 48, 49},
-{50, 51, 52, 53, 54, 55, 56, 57, 58, 59},
-{60, 61, 62, 63, 64, 65, 66, 67, 68, 69},
-{70, 71, 72, 73, 74, 75, 76, 77, 78, 79},
-{80, 81, 82, 83, 84, 85, 86, 87, 88, 89},
-{90, 91, 92, 93, 94, 95, 96, 97, 98, 99},
-
-    };
-
-    uint64_t max = 0;
-    uint64_t currentProduct = 1;
-
-    //up-down
-    for (int i = 0; i < w; i++) {
+//left-right
+for (int i = 0; i <= w - windowLen; i++) {
+    for (int j = 0; j < h; j++) {
         uint64_t currentProduct = 1;
-        for (int j = 0; j < h - windowLen; j++) {
-            for (int k = 0; k < windowLen; k++) {
-                currentProduct *= arr[j+k][i];
-            }
+        for (int k = 0; k < windowLen; k++) {
+            currentProduct *= arr[j][i + k];
         }
         if (currentProduct > max)
             max = currentProduct;
     }
-
-    //left-right
-    for (int i = 0; i < h; i++) {
+}
+//diagonal, negative slope
+for (int i = 0; i < w - windowLen + 1; i++) {
+    for (int j = 0; j < h - windowLen + 1; j++) {
         uint64_t currentProduct = 1;
-        for (int j = 0; j < w - windowLen; j++) {
-            for (int k = 0; k < windowLen; k++) {
-                currentProduct *= arr[j][i+k];
-            }
+        for (int k = 0; k < windowLen; k++) {
+            uint8_t element = arr[j + k][i + k];
+            currentProduct *= element;
         }
         if (currentProduct > max)
             max = currentProduct;
     }
+}
 
-    //diagonal, negative slope
-    for (int i = 0; i < w-(windowLen-2); i++) {
+//diagonal, positive slope
+for (int i = 0; i <= w - windowLen; i++) {
+    for (int j = h - 1; j >= windowLen - 1; j--) {
         uint64_t currentProduct = 1;
-        for (int j = i; j < h-(windowLen-1); j++) {
-            for (int k = 0; k < windowLen; k++) {
-                uint64_t element = arr[j + k][i + j + k];
-                currentProduct *= element;
-                for (int o = 0; o < k; o++) {
-                    cout << "  ";
+        for (int k = 0; k < windowLen; k++) {
+            uint8_t element = arr[j - k][i + k];
+            currentProduct *= element;
+        }
+        if (currentProduct > max)
+            max = currentProduct;
+    }
+}
+return max;
+}
+
+//Problem: find the first triangle number with greater than 500 factors.
+//continually go through all primes less than current triangle number. divide it by any prime factors. 
+//keep track of how many unique, and non unique prime factors. Do math to find out the amount of unique combinations of factors.
+//very fast compared to bruteforce.
+//O(?) - the time complexity is rather complicated. If I had to guess i would say n^2 or n^3.
+uint64_t pe12() {
+
+    const uint64_t n = 16000; //generate all primes less than n. increase n if you also increase the number of factors to beyond 500.
+    bool* p = new bool[n] {0};
+
+    vector<long> primes;
+    primes.push_back(2);
+    int primesFound = 1;
+
+    //generate primes via sieve.
+    for (int i = 0; i < n; i++) {
+        int currentPrime = primes[primesFound - 1];
+        for (int k = currentPrime; k < n; k += currentPrime) {
+            p[k] = 1;
+        }
+        for (int j = currentPrime + 1; j < n; j++) {
+            if (!p[j]) {
+                primes.push_back(j);
+                primesFound++;
+                break;
+            }
+        }
+    }
+    //put the primes into an array for quick access.
+    long* primeArr = new long[primes.size()];
+    std::vector<long>::iterator it = primes.begin();
+    for (int i = 0; it != primes.end(); it++,i++) {
+        primeArr[i] = *it;
+    }
+
+
+    long long triangleNum = 0;
+    int pCount;
+    const int divisors = 500;
+    short pFCount[divisors] = {0}; //arrays used to track number of each prime factor
+    short uPFactors[divisors] = {0};
+
+    for (int i = 1; ; i++) {
+        triangleNum += i;
+
+        long long currentTriangleNum = triangleNum;
+        pCount = 0;
+
+        // continually go through all primes less than current triangle number. divide it by any prime factors. 
+        //keep track of how many unique, and non unique prime factors. Do math to find out the amount of unique combinations of factors.
+        for (int j = 0; primeArr[j] <= currentTriangleNum && j < primes.size(); j++) { 
+            if (currentTriangleNum % primeArr[j] == 0) {
+                uPFactors[pCount] = primeArr[j];
+                pFCount[pCount] = 0;
+                while (currentTriangleNum % primeArr[j] == 0) {
+                    currentTriangleNum /= primeArr[j];
+                    pFCount[pCount]++;
                 }
-                cout << element << endl;
+                pCount++;
             }
         }
-        cout << endl;
-        if (currentProduct > max)
-            max = currentProduct;
+        if (currentTriangleNum > primeArr[primes.size() - 1]) {
+            return -2; //didnt generate enough primes. increase 'n'
+        }
+
+        int factorCount = pow(2,pCount); //Use the binomial theorem to find combinations of unique primes.
+        for (int j = 0; j < pCount; j++) {
+            factorCount *= (1 + .5 * (pFCount[j] - 1)); //math that I worked out on paper. accounts for non-unique primes.
+        }
+        if (factorCount > 500) {
+            return triangleNum;
+        }
     }
-
-
-
-    return (uint64_t)arr[2][3];
-
+    return -1;
 }

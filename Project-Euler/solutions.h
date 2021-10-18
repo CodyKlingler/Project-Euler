@@ -54,4 +54,6 @@ uint64_t pe10();
 
 uint64_t pe11();
 
-void printgrid();
+uint64_t pe12();
+
+uint64_t pe12alternate();

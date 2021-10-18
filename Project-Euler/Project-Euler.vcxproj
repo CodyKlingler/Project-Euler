@@ -139,10 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="myMath.cpp" />
     <ClCompile Include="Project-Euler.cpp" />
     <ClCompile Include="solutions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="myMath.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="solutions.h" />
   </ItemGroup>
