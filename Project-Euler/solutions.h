@@ -56,4 +56,8 @@ uint64_t pe11();
 
 uint64_t pe12();
 
-uint64_t pe12alternate();
+uint64_t pe13();
+
+long pe14();
+
+long long pe15();

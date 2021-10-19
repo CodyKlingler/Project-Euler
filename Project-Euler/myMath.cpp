@@ -9,7 +9,7 @@ long long factorial(int  n) {
 }
 
 long long nchoosek(int n, int k) {
-	int fac = 1;
+	long long fac = 1;
 	for (int i = k + 1; i <= n; i++) {
 		fac *= i;
 	}

@@ -4,22 +4,18 @@
 #include <chrono>
 
 
-
+//On my machine
+//int is 32 bits
+//long is 32 bits
+//long long is 64 bits
 
 
 int main() {
 
-
-
 	
-	auto startTimeP12alt = std::chrono::high_resolution_clock::now();
-	cout << pe12() << endl;
-	auto stopTimeP12alt = std::chrono::high_resolution_clock::now();
-	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTimeP12alt - startTimeP12alt).count())/1000.0 << " s" << endl;
-	
-	/*
-	cout << pe12() << endl;
-	auto stopTimeP12 = chrono::high_resolution_clock::now();
-	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTimeP12 -stopTimeP12alt).count()) / 1000.0 << " s" << endl;
-	*/
+	auto startTime = std::chrono::high_resolution_clock::now();
+	cout << pe15() << endl;
+	auto stopTime = std::chrono::high_resolution_clock::now();
+	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTime - startTime).count())/1000.0 << " s" << endl;
+
 }
