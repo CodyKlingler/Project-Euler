@@ -14,7 +14,7 @@ int main() {
 
 	
 	auto startTime = std::chrono::high_resolution_clock::now();
-	cout << pe15() << endl;
+	cout << pe16() << endl;
 	auto stopTime = std::chrono::high_resolution_clock::now();
 	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTime - startTime).count())/1000.0 << " s" << endl;
 

@@ -628,3 +628,34 @@ long long pe15() {
     reducePascals(pascalsTriangle, lengthSide + 1, ret);
     return ret;
 }
+
+
+//sum of the digits of 2^1000
+//calculates 2^1000 by storing digits in an array.
+long pe16() {
+    const int len = 302; //302 is cieling(log10(2^1000))
+    short p2[len] = { 0 }; //store each digit of the current power of two. p[0] being least significant digit, p[len-1] being most significant
+    p2[0] = 1; // 2^0
+
+    int maxDigitReached = 0;
+
+    for (int i = 0; i < 1000; i++) {
+        for (int d = maxDigitReached; d >= 0; d--) { //double the number in p2. work from most significant down.
+            int k = d;
+            short times2 = p2[k] * 2;
+            p2[k] = times2 % 10;
+            while (times2 /= 10) {
+                k++;
+                times2 += p2[k];
+                p2[k] = times2 % 10;
+                if (k > maxDigitReached)
+                    maxDigitReached = k;
+            }
+        }
+    }
+    long sum = 0;
+    for (int r = maxDigitReached; r >= 0; r--) {
+        sum += p2[r];
+    }
+    return sum;
+}
