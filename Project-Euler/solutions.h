@@ -63,3 +63,9 @@ long pe14();
 long long pe15();
 
 long pe16();
+
+long pe17();
+
+long pe17_iterative();
+
+long pe18();

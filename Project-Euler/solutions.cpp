@@ -659,3 +659,159 @@ long pe16() {
     }
     return sum;
 }
+
+
+#include <string>
+#include <iostream>
+#include <vector> 
+#include <map>
+#include <iterator>
+
+using namespace std;
+
+#define xx(a) word = a;break;
+
+//can be sped-up by finding these values before compilation. not significant for the non-iterative calculation.
+int lookuplength(int n) {
+    const char* word;
+    switch (n) {
+    case 0: return strlen("");
+    case 1: return strlen("one");
+    case 2: return strlen("two");
+    case 3: return strlen("three");
+    case 4: return strlen("four");
+    case 5: return strlen("five");
+    case 6: return strlen("six");
+    case 7: return strlen("seven");
+    case 8: return strlen("eight");
+    case 9: return strlen("nine");
+    case 10: return strlen("ten");
+    case 11: return strlen("eleven");
+    case 12: return strlen("twelve");
+    case 13: return strlen("thirteen");
+    case 14: return strlen("fourteen");
+    case 15: return strlen("fifteen");
+    case 16: return strlen("sixteen");
+    case 17: return strlen("seventeen");
+    case 18: return strlen("eighteen");
+    case 19: return strlen("nineteen");
+    case 20: return strlen("twenty");
+    case 30: return strlen("thirty");
+    case 40: return strlen("forty");
+    case 50: return strlen("fifty");
+    case 60: return strlen("sixty");
+    case 70: return strlen("seventy");
+    case 80: return strlen("eighty");
+    case 90: return strlen("ninety");
+    case 100: return strlen("hundred");
+    case 1000: return strlen("thousand");
+    default: return strlen("and");
+    }
+}
+
+
+//logic for breaking number into words
+int numlen(int n) {
+    if (n == 1000) {
+        return lookuplength(1) + lookuplength(1000);
+    }
+    if (n >= 100) {
+        int len = lookuplength(n / 100) + lookuplength(100); 
+        if (n % 100 != 0)
+            len += (numlen(-1) + numlen(n % 100));
+        return len;
+    }
+    if (n <= 19) {
+        return lookuplength(n);
+    }
+    if (n < 100) {
+        return lookuplength(10 * (n / 10)) + lookuplength(n % 10);
+    }
+}
+
+//calculates the sum by counting the amount of times that each word is used.
+//i should have written the code to be more dynamic, but it works fine for calculating the sum for n<=1000
+long pe17() {
+    long sum = 0;
+
+    sum += lookuplength(1) * (9 * 10 + 100 + 1);
+    for (int i = 2; i < 10; i++) {
+        sum += lookuplength(i) * (9 * 10 + 100);
+    }
+    
+    for (int i = 10; i < 20; i++) {
+        sum += lookuplength(i) * 10;
+    }
+    for (int i = 2; i < 10; i++) {
+        sum += lookuplength(i*10) * 10*10;
+    }
+    sum += lookuplength(100) *100*9;
+
+    sum += lookuplength(1000);
+    sum += strlen("and") * 99 * 9;
+
+    return sum;
+}
+
+//generates each word and counts the length.
+long pe17_iterative() {
+    long sum = 0;
+    for (int i = 1; i <= 1000; i++) {
+        int thislen = numlen(i);
+        sum += thislen;
+    }
+    return sum;
+}
+
+
+
+
+//find the greatest path from top to bottom of the triangle.
+//this is a dynamic programming problem
+//generate the maximum path in each row iteratively.
+//bad design would lead you to test every single path recursively
+//O(n)
+long pe18() {
+    const int rows = 15;
+    vector<int> triangle[] = {
+        {75},
+        {95, 64},
+        {17, 47, 82},
+        {18, 35, 87, 10},
+        {20, 4, 82, 47, 65},
+        {19, 1, 23, 75, 3, 34},
+        {88, 2, 77, 73, 7, 63, 67},
+        {99, 65, 4, 28, 6, 16, 70, 92},
+        {41, 41, 26, 56, 83, 40, 80, 70, 33},
+        {41, 48, 72, 33, 47, 32, 37, 16, 94, 29},
+        {53, 71, 44, 65, 25, 43, 91, 52, 97, 51, 14},
+        {70, 11, 33, 28, 77, 73, 17, 78, 39, 68, 17, 57},
+        {91, 71, 52, 38, 17, 14, 91, 43, 58, 50, 27, 29, 48},
+        {63, 66, 4, 68, 89, 53, 67, 30, 73, 16, 69, 87, 40, 31},
+        {4, 62, 98, 27, 23, 9, 70, 98, 73, 93, 38, 53, 60, 4, 23}
+    };
+
+    for (int i = 1; i < rows; i++) {
+        for (int j = 0; j<triangle[i].size(); j++) {
+            int greaterParent;
+            #define myMax(a,b) (a>b)?a:b;
+            if (j == 0) 
+                greaterParent = triangle[i - 1][j];
+            else if (j == triangle[i].size() - 1) 
+                greaterParent = triangle[i - 1][j - 1];
+            else
+                greaterParent = myMax(triangle[i - 1][j], triangle[i - 1][j - 1]);
+            
+            triangle[i][j] += greaterParent;
+        }
+        cout << endl;
+    }
+
+    int max = -1;
+    for (int i = 0; i < triangle[rows - 1].size(); i++) {
+        if (triangle[rows - 1][i] > max)
+            max = triangle[rows - 1][i];
+    }
+
+    return max;
+}
