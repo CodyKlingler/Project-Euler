@@ -10,13 +10,7 @@
 
 using namespace std;
 
-//helpers for pe1
-int SumToN(int n) {
-    return (n * (n + 1)) / 2;
-}
-int SumMultiplesOfNtoK(int n, int k) {
-    return n * SumToN(k / n);
-}
+
 
 //finds sum of multiples of 3 or 5 up to 1000
 //computed as sum of multiples of 3 and multiples of 5, minus multiples of 15
@@ -27,11 +21,11 @@ int pe1() {
 }
 
 //finds sum of even numbers in the fibonacci sequence up to  4 million
-//I wouldn't be surprised if there is a more efficient solution using the golden ratio
+//I wouldn't be surprised if there is a more efficient solution using the golden ratio or weird number theory
 //O(n)
 int pe2() {
-    const int UPPER_BOUND = 40000000;
-    int b = 0;
+    const int UPPER_BOUND = 40000000; //sum digits less than upper bound
+    int b = 0; 
     int a = 1;
     int nextTerm = 1;
     int evenSum = 0;
@@ -49,85 +43,84 @@ int pe2() {
 
 //finds the largest prime factor of 600,851,475,143
 //find smallest prime factor, divide n. repeat
-//O(n)
+//O(n) - worst case
 long long pe3() {
     long long n = 600851475143L;
 
-    long long i = 5;
     long long largestPrimeFactor = 0;
-    while (i < n) {
-        if (!(n % i)) {
-            if (i > largestPrimeFactor) {
-                largestPrimeFactor = i;
-            }
-            n /= i;
-            i = 2; // restart linear scan from n=2;
+    for (int currentFactor = 2; currentFactor < n; currentFactor++) { //check each numberfactor less than n for divisibility
+        if (!(n % currentFactor)) { //if evenly divisible, we found a factor
+            if (currentFactor > largestPrimeFactor) // check if its the largest factor so far.
+                largestPrimeFactor = currentFactor;
+            n /= currentFactor; // reduce the number that we are checking to speed things up
+            currentFactor = 1; // restart linear scan from n=2 since we divided by the factor found
         }
-        i++;
     }
-    if (n > largestPrimeFactor)
+    if (n > largestPrimeFactor) // the remaining number should always be the largest prime factor, but check just in case
         largestPrimeFactor = n;
     return largestPrimeFactor;
 }
 
 
 // helper to p4
+bool isPalindrome(long n);
+
+//maybe could be optimized with weird number theory
+//O(n**2) - worst case - starts with largest values on multiplication table (from perfect squares to the edges)
+long pe4() {
+    for (long i = 999; i > 0; i--) {
+        long tempi = i;
+        stack<long> s;
+        for (long j = 999; j >= tempi && tempi <= 999; j--, tempi++) { // start from the edges of the multiplication table and work towards the middle
+            s.push(i * j); // the elements in the middle have the largest product, so the stack lets us chech those first
+        }
+        while (s.size()) { 
+            if (isPalindrome(s.top())) { //check all of the elements in the stack for a palindrome
+                return s.top(); //the first palindrome that we find is the biggest
+            }
+            s.pop();
+        }
+    }
+}
+//helper to p4
 bool isPalindrome(long n) {
-    int len = (int)(log10(n) + .9999999);
+    int len = (int)(log10(n) + .9999999); //find the amount of digits in decimal notation. (should use cieling function rather than add .9999)
     int* nums = new int[len] { -1 };
 
-    for (int i = len - 1; i >= 0; i--) {
+    for (int i = len - 1; i >= 0; i--) { //find the representation in decimal
         nums[i] = n % 10;
         n /= 10;
     }
 
-    for (int i = 0; i <= len - 1 - i; i++) {
+    for (int i = 0; i <= len - 1 - i; i++) { //check if its a palindrome
         if (nums[i] != nums[len - 1 - i])
             return false;
     }
     return true;
 }
 
-//maybe could be optimized with weird number theory
-//O(n**2) - starts with largest values on multiplication table (from perfect squares to the edges)
-long pe4() {
-    for (long i = 999; i > 0; i--) {
-        long tempi = i;
-        stack<long> s;
-        for (long j = 999; j >= tempi && tempi <= 999; j--, tempi++) {
-            s.push(i * j);
-        }
-        while (s.size()) {
-            if (isPalindrome(s.top())) {
-                return s.top();
-            }
-            s.pop();
-        }
-    }
-}
-
 
 //find smallest number that is divisible by all numbers less than 20
 //O(~n) (actually O(primes less than n))
 uint64_t pe5() {
-    int c[] = { 2, 3, 5, 7, 11, 13, 17, 19 }; //primes less than 20
+    int primeArr[] = { 2, 3, 5, 7, 11, 13, 17, 19 }; //primes less than 20
 
-    uint64_t prod = 1;
-    for (int i : c) {
-        int n = (int)((log10(20) / log10(i)) + .0001); //basically log(20) (base prime)
-        prod *= uint64_t(pow(i, n)+.5);
+    uint64_t product = 1;
+    for (int currentPrime : primeArr) {
+        int n = (int)((log10(20) / log10(currentPrime)) + .0001); //find the amount numbers below 20 that consist purely of factors of the current prime, in other words powers of the prime < 20, (logp(20)). this p^n is equal is also equal to the LARGEST ppower of p less than 20
+        product *= uint64_t(pow(currentPrime, n)+.5); //make our prouct divisible by all possible factors of p.
     }
-    return prod;
+    return product;
 }
 
-//difference of sum of squares and square of sum
-//I suspect there is a more efficient solution using binomial theorem.
+//difference of sum of squares and square of sum, less than or equal to 100
+//I suspect there is a more efficient solution using binomial theorem, but its probably 
 //O(n)
 long pe6() {
     using namespace std;
     long sumOfSq = 0;
     long SqOfSum = 0;
-    for (int i = 1; i <= 100; i++) {
+    for (int i = 1; i <= 100; i++) { // calculate each square, and also calculate the sum of integers
         SqOfSum += i;
         sumOfSq += i * i;
     }
@@ -137,28 +130,30 @@ long pe6() {
 
 
 long pe7() {
-    const int findPrime = 10001;
-    const int n = 600000;
-    bool p[n] = { 0 };
+    const int findPrime = 10001; //find the 10001st prime
+    const int upperBound = 600000; //the algorithm works best if you provide an upper bound for the value. code could be improved by rerunning with increased bound if this one is too low
+    bool isComposite[upperBound] = { 0 };
     int primesFound = 1;
-    queue<int> primes;
+
+    queue<int> primes; // does not need a queue. remove!!!!
     primes.push(2);
+
     while(primes.size()) {
         int currentPrime = primes.front();
         primes.pop();
-        int k;
-        for (int k = currentPrime; k < n; k += currentPrime) {
-            p[k] = 1;
+
+        for (int k = currentPrime; k < upperBound; k += currentPrime) { //mark all factors of the current prime as composite.
+            isComposite[k] = 1;
         }
 
-        for (int j = currentPrime+1; j < n; j++) {
-            if (!p[j]) {
-                primes.push(j);
+        for (int j = currentPrime+1; j < upperBound; j++) { //find the next prime number
+            if (!isComposite[j]) { //the next non-marked number is prime.
+                primes.push(j); 
                 primesFound++;
-                if (primesFound == findPrime) {
+                if (primesFound == findPrime) { // if this is the 10001st prime, return it
                     return j;
                 }
-                break;
+                break;   //stop searching for the next prime. we just found it.
             }
         }
 
