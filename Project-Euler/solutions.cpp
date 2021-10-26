@@ -850,3 +850,30 @@ int pe19() {
     }
     return sundayMonths;
 }
+
+int pe20() {
+    const int productLen = 200;  // maximum amount of digits to calculate. for 100! you could assume a worst case of log10(100^100) = 200, (log10(100!) = 157.9)
+    short* product = new short[productLen] {0}; //holds the end result
+    product[0] = 1;
+
+    short mostSignificantDigit = 0; // it should save some time if we track the leading digit rather than check each digit in the array.
+    for (int i = 1; i <= 100; i++) { //i is the current number to multiply by to find the factorial. think of how you learned to multiply big numbers as a kid
+        for (int d = mostSignificantDigit; d >= 0; d--) { //multiply each digit,product[d], by i
+            int currentProduct = i * product[d];    //current product holds sub-product, or the current digit multiplied by i
+            product[d] = (short)(currentProduct % 10);  //the new number digit in this position is always the last digit in the current product
+            currentProduct /= 10;
+            int k;
+            for (k = 1; currentProduct; k++, currentProduct /= 10) { // add the current product to the other digits places
+                currentProduct += product[d + k];
+                product[d + k] = (short)(currentProduct % 10);
+            }
+            if (d + k - 1 > mostSignificantDigit) //recalculate most significant digit
+                mostSignificantDigit = d + k;
+        }
+    }
+    int sum = 0;
+    for (int i = 0; i <= productLen - 1; i++) { // calculate sum of digits
+        sum += product[i];
+    }
+    return sum;
+}

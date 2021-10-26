@@ -71,3 +71,5 @@ long pe17_iterative();
 long pe18();
 
 int pe19();
+
+int pe20();
