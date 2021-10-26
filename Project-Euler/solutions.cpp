@@ -768,7 +768,7 @@ long pe17_iterative() {
 
 //find the greatest path from top to bottom of the triangle.
 //this is a dynamic programming problem
-//generate the maximum path in each row iteratively.
+//generate the maximum path to each node iteratively.
 //bad design would lead you to test every single path recursively
 //O(n)
 long pe18() {
