@@ -6,7 +6,10 @@
 
 //TODO: figure out a consistent usage of types.
 //TODO: make sure to delete all heap allocated arrays.
-
+//TODO: change implementation of the sieve in pe7 and pe10 to not include a queue
+//TODO: add two sieve functions to myMath.cpp that generate all primes less than n, and the first n primes.
+//TODO: debug the more efficient solution to pe8
+//TODO: add the problem statement to each function.
 
 using namespace std;
 
@@ -166,12 +169,12 @@ long pe7() {
 //O(nm), n=windowSize, m = numLen
 uint64_t pe8() {
     const char num[] = "316717653133062491922511967442657474235534919493496983520312774506326239578318016984801869478851843858615607891129494954595017379583319528532088055111254069874715852386305071569329096329522744304355766896648950445244523161731856403098711121722383113622298934233803081353362766142828064444866452387493035890729629049156044077239071381051585930796086670172427121883998797908792274921901699720888093776657273330010533678812202354218097512545405947522435258490771167055601360483958644670632441572215539753697817977846174064955149290862569321978468622482839722413756570560574902614079729686524145351004748216637048440319989000889524345065854122758866688116427171479924442928230863465674813919123162824586178664583591245665294765456828489128831426076900422421902267105562632111110937054421750694165896040807198403850962455444362981230987879927244284909188845801561660979191338754992005240636899125607176060588611646710940507754100225698315520005593572972571636269561882670428252483600823257530420752963450";
-    const int numLen = 1000;
-    const int windowSize = 13;
+    const int numLen = 1000; //length of the number
+    const int windowSize = 13; //the amount of numbers to multiply together at once
 
     uint64_t currentProduct;
     uint64_t max = 0;
-    for (int i = 0; i < numLen-windowSize; i++) {
+    for (int i = 0; i < numLen - windowSize; i++) { //multiply each window of 13 elements to determine the max.
         currentProduct = 1;
         for (int j = 0; j < windowSize; j++) {
             currentProduct *= num[i + j] - '0';
@@ -195,32 +198,32 @@ uint64_t pe8e() {
     uint64_t currentProduct = 1;
     int zeroCount = 0;
 
-    for (int i = 0; i < windowSize; i++) {
+    for (int i = 0; i < windowSize; i++) { //multiply the first 13 elements to find the first product
         int nextInt = num[i] - '0';
         if (nextInt == 0) {
-            nextInt = (zeroCount==0) ? -1 : 1; //if we havent encountered a zero, make the sum negative.
-            zeroCount++;
+            nextInt = (zeroCount==0) ? -1 : 1; //if we have encountered a zero, make the product negative.
+            zeroCount++;                        //this allows us to keep accurate information on the window without creating a false maximum
         }
         currentProduct *= nextInt;
     }
 
     uint64_t max = currentProduct;
     for (int i = windowSize; i < numLen; i++) {
-        int nextInt = num[i]-'0';
-        int prevInt = num[i - windowSize] - '0';
+        int nextInt = num[i]-'0'; //the int leaving the window
+        int prevInt = num[i - windowSize] - '0'; //the int entering the window
 
-        if (prevInt == 0) {
-            zeroCount--;
-            prevInt = (zeroCount==0) ? -1 : 1;
+        if (prevInt == 0) { // if the element leaving the window is zero, we can potentially do max calculations again.
+            zeroCount--; 
+            prevInt = (zeroCount==0) ? -1 : 1; //if there are no more zeroes in the window, make the product positive by dividing by -1
         }
 
-        if (nextInt == 0) {
+        if (nextInt == 0) { //if the element coming in is zero
             nextInt = (zeroCount==0) ? -1 : 1; //if we havent encountered a zero, make the sum negative.
             zeroCount++;
         }
 
-        currentProduct /= prevInt;
-        currentProduct *= nextInt;
+        currentProduct /= prevInt; //remove the old element from the product
+        currentProduct *= nextInt; //multiply by the new one
         if (currentProduct > max)
             max = currentProduct;
     }
@@ -229,36 +232,46 @@ uint64_t pe8e() {
 }
 
 
-
+//find the right triangle whose perimeter is 1000 and all sides are integer values and return the product of the sides.
 //obvious solution is to check every combination of a and b in a**2 + b**2 = c**2
 //obvious is O(n**2), n = perimeter (1000)
 //my solution is O(n). if A is given, you can derive a formula to solve for the exact value of B.  
-//my solution also doesn't use square roots or floats, which would expensive and approximate.
-//I think that you can solve this even faster though. the triple that is found is an integer factor of the triple 8, 15, 17. 1000 % (8*15*17) = 0. 
+//my solution also doesn't use square roots or floats, which would be (slightly) expensive and approximate.
+//It may be possible to solve this even faster. the triple that is found is an integer factor of the triple 8, 15, 17. [1000 % (8*15*17) = 0] 
 uint64_t pe9() {
     //(1000-(a+b))^2 = a^2 + b^2 = c^2
-    const int perimeter = 1000;
-    for (int a = 1; a < perimeter-2; a++) {
+
+    const int perimeter = 1000; //the problem asks for a perimeter of 1000
+
+    //       (1000)*(1000 - 2a)        I found this on my own by messing with triangle formulas. 
+    // b = -----------------------,    it allows us to calculate the value of 'b' that makes the perimeter 1000 if we know 'a'
+    //          2*(1000-a)             using it, we can find the b value that makes the equation true
+
+    for (int a = 1; a < perimeter-2; a++) { //if we assume all possible integer values for 'a', then 
         uint64_t numerator = perimeter * (perimeter - 2 * a);
         uint64_t denominator = 2 * (perimeter - a);
-        int b = numerator / denominator;
-        if (b && numerator % denominator == 0) {
-            int c = perimeter - (a + b);
+        int b = numerator / denominator;                //find b using the forula shown above
+        if (b && numerator % denominator == 0) {//check that b is an integer.
+            int c = perimeter - (a + b);        //find c.
             cout << a << " " << b << " " << c << endl;
-            return a * b * c;
+            return a * b * c;       //return product of sides
         }
     }
-    cout << "bb";
+    cout << "something went wrong. no triangle found";
     return -1;
 }
 
+
+/*The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
+*Find the sum of all the primes below two million.
+*/
 //using my sieve from problem 7,
+//make an array of two million booleans, make a number's element true if it is composite. 
 uint64_t pe10() {
-    const uint64_t n = 2000000;
-    bool* p = new bool[n] {0};
+    const uint64_t maxValue = 2000000;
+    bool* isComposite = new bool[maxValue] {0};
 
     uint64_t sum = 0;
-
     queue<int> primes;
     primes.push(2);
 
@@ -269,12 +282,12 @@ uint64_t pe10() {
         primes.pop();
 
         int k;
-        for (int k = currentPrime; k < n; k += currentPrime) {
-            p[k] = 1;
+        for (int k = currentPrime; k < maxValue; k += currentPrime) {
+            isComposite[k] = 1;
         }
 
-        for (int j = currentPrime + 1; j < n; j++) {
-            if (!p[j]) {
+        for (int j = currentPrime + 1; j < maxValue; j++) {
+            if (!isComposite[j]) {
                 primes.push(j);
                 break;
             }
