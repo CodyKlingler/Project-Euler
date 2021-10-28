@@ -3,20 +3,17 @@
 #include <vector>
 #include <chrono>
 
-
-//On my machine
-//int is 32 bits
-//long is 32 bits
-//long long is 64 bits
+//see solutions.cpp for the actual code.
+//this file is just used to test solutions
 
 
 int main() {
 
 	
 	auto startTime = std::chrono::high_resolution_clock::now();
-	cout << pe3() << endl;
+	cout << pe6() << endl;
 	auto stopTime = std::chrono::high_resolution_clock::now();
-	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTime - startTime).count())/1000.0 << " s" << endl;
+	cout << (double)(std::chrono::duration_cast<chrono::milliseconds>(stopTime - startTime).count())/1000.0 << " s" << endl; //print running time
 
 	
 }
