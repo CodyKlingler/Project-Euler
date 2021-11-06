@@ -738,35 +738,67 @@ uint64_t pe13() {
 * NOTE: Once the chain starts the terms are allowed to go above one million.
 */
 
-//I don't think that there are any optimizations that you can do. This problem is straight forward.
+//the obvious solution is to generate the sequence for each n < 1,000,000, but this is quite slow. 
+//this instead finds the sequence length for each number, and records it. 
+//collatz chains will converge to chains that we have found previously, so we should
+//store each collatz chain that we find the value for.
+//this solution was 16x faster than the obvious one on my machine.
+
+long long collatz(long long n); //returns the next number in the sequence
+long getChainLength(int arr[], int maxlen, long long n); //returns the length of the number passed in as n. arr is used to record previous calculations
+
 long pe14() {
-    const int MAX_STARTING_NUMBER = 1000000;
+    const int MAX_STARTING_NUMBER = 1000000; //1million
 
-    long longestChain = -1;
-    long numberWithLongestChain = -1;
+    const int maxLen = 5000000; //5million
+    int* chainArr = new int[maxLen]; //make an array to record calculations
 
-    for (long currentStartingNumber = 1; currentStartingNumber < MAX_STARTING_NUMBER; currentStartingNumber++) { //for all numbers in the range 1 : 1,000,000
-        long long n = currentStartingNumber;
-        long chainLength = 0;
-        while (n != 1) {
-            n = (n % 2) ? n * 3 + 1 : n / 2; //check if odd or even and do collatz sequence
-            chainLength++;
-        }
-        if (chainLength > longestChain) { //determine if this is the longest sequence
-            longestChain = chainLength;
-            numberWithLongestChain = currentStartingNumber;
+    memset(chainArr, -1, sizeof(int) * maxLen); //initialize all values to -1, which stands for unknown chain length.
+    chainArr[1] = 0; //the chain length of 1 is 0
+
+    //store max chain length and the starting value for the maximum chain
+    long maxChainLength = 0;
+    long maxChainInitial = 0; 
+
+    for (long long n = 1; n < MAX_STARTING_NUMBER; n++) { //for every number less than 1 million,
+
+        int currentChainLength = getChainLength(chainArr, maxLen, n); //find the chain length, and store found length in array
+
+        if (currentChainLength > maxChainLength) { //update maximum chain
+            maxChainLength = currentChainLength;
+            maxChainInitial = n;
         }
     }
-    return numberWithLongestChain;
+    return maxChainInitial;
 }
+
+//generate the next collatz number from n.
+long long collatz(long long n) {
+    return (n % 2) ? n * 3 + 1 : n / 2;
+}
+
+//finds how many collatz iterations it takes to converge
+long getChainLength(int arr[], int maxlen, long long n) {
+    if (n >= maxlen) //out of bounds of array.
+        return getChainLength(arr, maxlen, collatz(n)) + 1;
+
+    if (arr[n] >= 0) //if we've previously calculated the chain length of this number
+        return arr[n];
+    else if (arr[n] < 0) { //if this is a new number 
+        arr[n] = getChainLength(arr, maxlen, collatz(n)) + 1; //the chain length is one greater than the chain length of the next number in the sequence
+        return arr[n]; //record chain length of the newly found number(s).
+    }
+}
+
+
 
 /*Problem 15
 *Starting in the top left corner of a 2×2 grid, and only being able to move to the right and down, there are exactly 6 routes to the bottom right corner.
 *How many such routes are there through a 20×20 grid?
 */
 
-void reducePascals(long long arr[], int len, long long& n); //helper to problem 15.
 
+void reducePascals(long long arr[], int len, long long& n); //helper to problem 15.
 long long pe15() {
     // this is nchoosek(40,20)
     // 
